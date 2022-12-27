@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Contact us form validation Using Javascript</title>
+	    <link rel="stylesheet" href="css/style.css">
+	<script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/knockout-3.4.2.js"></script>
+    <script type="text/javascript">
+		jQuery.support.cors = true;
+		
+        $(document).ready(function() {
+
+            var customerDetailsViewModel = function() {
+            var self = this;
+			
+			self.EmailID   = ko.observable("");
+            self.FirstName = ko.observable("");
+            self.LastName  = ko.observable("");
+			self.Phone     = ko.observable("");
+			self.Feedback  = ko.observable("");
+            self.SuccessMessage = ko.observable("");
+            self.SaveCustomerDetails = function () {
+				var CustomerDetail = {
+				EmailID: self.EmailID(),
+				FirstName: self.FirstName(),
+				LastName: self.LastName(),
+                Phone: self.Phone(),	
+                Feedback: self.Feedback()				
+				}	
+				
+				$.ajax({
+					crossDomain: true,
+				    url: ' https://d1kkr567t0.execute-api.us-east-2.amazonaws.com/Dev/custfeedback',
+                    cache: false,
+                    type: 'POST', 
+                    data: ko.toJSON(CustomerDetail),
+                    success: function (data) {              
+                        self.SuccessMessage(data)
+							self.EmailID('');
+							self.FirstName('');
+							self.LastName('');
+                            self.Phone('');
+                            self.Feedback('');	
+                            alert(SuccessMessage);							
+                    }
+					}).fail(				
+					function(xhr, textStatus, err){
+					alert("Error happened "+err);					
+                });
+            };
+        }
+            var viewModel = new customerDetailsViewModel();
+            ko.applyBindings(viewModel);
+         });       
+    </script>
+</head>
+<body>
+<div class="wrapper">
+  <h2>Feedback Form</h2>
+  <div id="error_message"></div>
+  <form id="myform" onsubmit="return validate();">
+    <div class="input_field">
+        <input type="text" placeholder="First Name" id="fname" data-bind='value: FirstName'>
+    </div>
+    <div class="input_field">
+        <input type="text" placeholder="Last Name" id="lname" data-bind='value: LastName'>
+    </div>
+    <div class="input_field">
+        <input type="text" placeholder="Phone" id="phone" data-bind='value: Phone'>
+    </div>
+    <div class="input_field">
+        <input type="text" placeholder="Email" id="email" data-bind='value: EmailID'>
+    </div>
+    <div class="input_field">
+        <textarea placeholder="Your Feedback" id="yourfeedback" data-bind='value: Feedback'></textarea>
+    </div>
+    <div class="btn">
+        <input type="submit" data-bind="click: $root.SaveCustomerDetails" >
+    </div>
+	<div>
+		<span style ="color: darkolivegreen" data-bind='text : SuccessMessage' />
+		<dialog open>
+  <p>Greetings, one and all!</p>
+  <form method="dialog">
+    <button>OK</button>
+  </form>
+</dialog>
+	</div>					
+  </form>
+</div>
+
+</body>
+</html>
